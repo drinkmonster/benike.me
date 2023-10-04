@@ -19,7 +19,7 @@ const { id } = useRoute().params
 
 const post = await pb.collection('posts').getOne(id);
 
-if (!post.value) {
+if (!post) {
     throw createError({ statusCode: 404, message: 'Post not found', fatal: true })
 }
 
