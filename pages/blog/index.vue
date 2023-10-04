@@ -27,6 +27,7 @@ const filteredPosts = computed(() => {
 
 definePageMeta({
     layout: 'blog',
+    colorMode: 'dark',
 })
 </script>
 

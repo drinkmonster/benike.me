@@ -18,7 +18,9 @@
 </template>
 
 <script setup>
-
+definePageMeta({
+  colorMode: 'dark',
+})
 </script>
 
 <style scoped>
