@@ -8,21 +8,55 @@
         <div class="flex justify-center" v-for="post in filteredPosts">
             <BlogCard :post="post" />
         </div>
+        <div class="flex justify-center">
+            <button v-if="currentPage > 1" @click="prevPage">Prev</button>
+            <button v-if="currentPage < totalPages" @click="nextPage">Next</button>
+        </div>
     </div>
 </template>
 
 <script setup>
 import PocketBase from 'pocketbase';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 const pb = new PocketBase('https://benike.me/api');
-const posts = await pb.collection('posts').getFullList({
-    sort: '-created',
-});
+const posts = ref([]);
 const search = ref('');
+const currentPage = ref(1);
+const perPage = ref(4);
+const totalPosts = ref(0);
+
+const totalPages = computed(() => {
+    return Math.ceil(totalPosts.value / perPage.value);
+});
+
+const paginatedPosts = computed(() => {
+    const start = (currentPage.value - 1) * perPage.value;
+    const end = start + perPage.value;
+    return posts.value.slice(start, end);
+});
 
 const filteredPosts = computed(() => {
-    return posts.filter(post => post.title.toLowerCase().includes(search.value.toLowerCase()));
+    if (search.value === '') {
+        return paginatedPosts.value;
+    } else {
+        return posts.value.filter(post => post.title.toLowerCase().includes(search.value.toLowerCase()));
+    }
+});
+
+const prevPage = () => {
+    currentPage.value--;
+};
+
+const nextPage = () => {
+    currentPage.value++;
+};
+
+onMounted(async () => {
+    posts.value = await pb.collection('posts').getFullList({
+        sort: '-created',
+    });
+    totalPosts.value = posts.value.length;
 });
 
 definePageMeta({
